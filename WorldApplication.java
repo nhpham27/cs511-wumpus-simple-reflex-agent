@@ -26,6 +26,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Random;
 
+
 class WorldApplication {
 	
 	private static String VERSION = "v0.18a";
@@ -33,7 +34,7 @@ class WorldApplication {
 	public static void main (String args[]) {
 		
 		int worldSize = 4;
-		int numTrials = 1;
+		int numTrials = 100;
 		int maxSteps = 50;
 		
 		boolean nonDeterministicMode = true;
