@@ -33,7 +33,7 @@ class AgentFunction {
 	private boolean stench;
 	private boolean scream;
 	private Random rand;
-
+	SimpleReflex simple;
 	public AgentFunction()
 	{
 		// for illustration purposes; you may delete all code
@@ -41,20 +41,19 @@ class AgentFunction {
 		// own intelligent agent
 
 		// this integer array will store the agent actions
-		actionTable = new int[8];
+		actionTable = new int[6];
 				  
-		actionTable[0] = Action.GO_FORWARD;
+		actionTable[0] = Action.NO_OP;
 		actionTable[1] = Action.GO_FORWARD;
-		actionTable[2] = Action.GO_FORWARD;
-		actionTable[3] = Action.GO_FORWARD;
-		actionTable[4] = Action.TURN_RIGHT;
-		actionTable[5] = Action.TURN_LEFT;
-		actionTable[6] = Action.GRAB;
-		actionTable[7] = Action.SHOOT;
+		actionTable[2] = Action.TURN_RIGHT;
+		actionTable[3] = Action.TURN_LEFT;
+		actionTable[4] = Action.GRAB;
+		actionTable[5] = Action.SHOOT;
 		
 		// new random number generator, for
 		// randomly picking actions to execute
 		rand = new Random();
+		simple = new SimpleReflex();
 	}
 
 	public int process(TransferPercept tp)
@@ -70,13 +69,12 @@ class AgentFunction {
 		breeze = tp.getBreeze();
 		stench = tp.getStench();
 		scream = tp.getScream();
-		
-		if (bump == true || glitter == true || breeze == true || stench == true || scream == true) {
-			// do something...?
-		}
-		
+
 		// return action to be performed
-	    return actionTable[rand.nextInt(8)];	    
+		if(glitter == true)
+			return Action.GRAB;
+		int action = simple.percept2action(glitter, stench, scream, bump, breeze); 
+		return action;
 	}
 	
 	// public method to return the agent's name
