@@ -33,6 +33,8 @@ class Simulation {
 	private TransferPercept transferPercept;
 	private BufferedWriter outputWriter;
 	
+	private boolean PRINT_ENABLE = false;
+	
 	public Simulation(Environment wumpusEnvironment, int maxSteps, BufferedWriter outWriter, boolean nonDeterministic) {
 		
 		// start the simulator
@@ -45,30 +47,34 @@ class Simulation {
 		agent = new Agent(environment, transferPercept, nonDeterministic);
 		
 		environment.placeAgent(agent);
-		environment.printEnvironment();
+		
+		if(PRINT_ENABLE)
+			environment.printEnvironment();
 		
 		printCurrentPerceptSequence();
 		
 		try {
-		
-			System.out.println("Current score: " + currScore);
+			if(PRINT_ENABLE)
+				System.out.println("Current score: " + currScore);
 			outputWriter.write("Current score: " + currScore + "\n");
 			
 			while (simulationRunning == true && stepCounter < maxSteps) {
-				
-				System.out.println("Last action: " + Action.printAction(lastAction));
+				if(PRINT_ENABLE)
+					System.out.println("Last action: " + Action.printAction(lastAction));
 				outputWriter.write("Last action: " + Action.printAction(lastAction) + "\n");
 				
-				System.out.println("Time step: " + stepCounter);
+				if(PRINT_ENABLE)
+					System.out.println("Time step: " + stepCounter);
 				outputWriter.write("Time step: " + stepCounter + "\n");
 				
 				handleAction(agent.chooseAction());
 				wumpusEnvironment.placeAgent(agent);
-				
-				environment.printEnvironment();								
+				if(PRINT_ENABLE)
+					environment.printEnvironment();								
 				printCurrentPerceptSequence();
-								
-				System.out.println("Current score: " + currScore);
+				
+				if(PRINT_ENABLE)
+					System.out.println("Current score: " + currScore);
 				outputWriter.write("Current score: " + currScore + "\n");
 				
 				//Scanner in = new Scanner(System.in);
@@ -77,21 +83,25 @@ class Simulation {
 				stepCounter += 1;
 				
 				if (stepCounter == maxSteps || simulationRunning == false) {
-					System.out.println("Last action: " + Action.printAction(lastAction));
+					if(PRINT_ENABLE)
+						System.out.println("Last action: " + Action.printAction(lastAction));
 					outputWriter.write("Last action: " + Action.printAction(lastAction) + "\n");
 					
-					System.out.println("Time step: " + stepCounter);
+					if(PRINT_ENABLE)
+						System.out.println("Time step: " + stepCounter);
 					outputWriter.write("Time step: " + stepCounter + "\n");
 					
 					lastAction = Action.END_TRIAL;
 				}
 				
 				if (agent.getHasGold() == true) {
-					System.out.println("\n" + agent.getName() + " found the GOLD!!");
+					if(PRINT_ENABLE)
+						System.out.println("\n" + agent.getName() + " found the GOLD!!");
 					outputWriter.write("\n" + agent.getName() + " found the GOLD!!\n");
 				}
 				if (agent.getIsDead() == true) {
-					System.out.println("\n" + agent.getName() + " is DEAD!!");
+					if(PRINT_ENABLE)
+						System.out.println("\n" + agent.getName() + " is DEAD!!");
 					outputWriter.write("\n" + agent.getName() + " is DEAD!!\n");	
 				}
 				
@@ -109,13 +119,13 @@ class Simulation {
 	public void printEndWorld() {
 		
 		try {
-			
-			environment.printEnvironment();
-			
-			System.out.println("Final score: " + currScore);
+			if(PRINT_ENABLE)
+				environment.printEnvironment();
+			if(PRINT_ENABLE)
+				System.out.println("Final score: " + currScore);
 			outputWriter.write("Final score: " + currScore + "\n");
-			
-			System.out.println("Last action: " + Action.printAction(lastAction));
+			if(PRINT_ENABLE)
+				System.out.println("Last action: " + Action.printAction(lastAction));
 			outputWriter.write("Last action: " + Action.printAction(lastAction) + "\n");
 
 		}
@@ -128,48 +138,58 @@ class Simulation {
 	public void printCurrentPerceptSequence() {
 		
 		try {
-		
-			System.out.print("Percept: <");	
+			if(PRINT_ENABLE)
+				System.out.print("Percept: <");	
 			outputWriter.write("Percept: <");
 			
 			if (transferPercept.getBump() == true) {
-				System.out.print("bump,");
+				if(PRINT_ENABLE)
+					System.out.print("bump,");
 				outputWriter.write("bump,");
 			}
 			else if (transferPercept.getBump() == false) {
-				System.out.print("none,");
+				if(PRINT_ENABLE)
+					System.out.print("none,");
 				outputWriter.write("none,");
 			}
 			if (transferPercept.getGlitter() == true) {
-				System.out.print("glitter,");
+				if(PRINT_ENABLE)
+					System.out.print("glitter,");
 				outputWriter.write("glitter,");
 			}
 			else if (transferPercept.getGlitter() == false) {
-				System.out.print("none,");
+				if(PRINT_ENABLE)
+					System.out.print("none,");
 				outputWriter.write("none,");
 			}
 			if (transferPercept.getBreeze() == true) {
-				System.out.print("breeze,");
+				if(PRINT_ENABLE)
+					System.out.print("breeze,");
 				outputWriter.write("breeze,");
 			}
 			else if (transferPercept.getBreeze() == false) {
-				System.out.print("none,");
+				if(PRINT_ENABLE)
+					System.out.print("none,");
 				outputWriter.write("none,");
 			}
 			if (transferPercept.getStench() == true) {
-				System.out.print("stench,");
+				if(PRINT_ENABLE)
+					System.out.print("stench,");
 				outputWriter.write("stench,");
 			}
 			else if (transferPercept.getStench() == false) {
-				System.out.print("none,");
+				if(PRINT_ENABLE)
+					System.out.print("none,");
 				outputWriter.write("none,");
 			}
 			if (transferPercept.getScream() == true) {
-				System.out.print("scream>\n");
+				if(PRINT_ENABLE)
+					System.out.print("scream>\n");
 				outputWriter.write("scream>\n");
 			}
 			else if (transferPercept.getScream() == false) {
-				System.out.print("none>\n");
+				if(PRINT_ENABLE)
+					System.out.print("none>\n");
 				outputWriter.write("none>\n");
 			}
 		
