@@ -1,68 +1,91 @@
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
+/*
+ *  SimpleReflex class
+ *  
+ *  The class has percept2action() method that can take in the percept
+ *  and return an action
+ * 	
+ */
+
+
 public class SimpleReflex {
-	public HashMap<String, double[]> actionTable;
-	SimpleReflex(){
-		this.actionTable = new HashMap<>();
-		this.createActionTable();
-	}
-	
+	// Return an action based on the percept sensed by the agent
 	int percept2action(boolean bump, boolean glitter, 
 			boolean breeze, boolean stench, boolean scream) {
-		String percept = this.perceptBoolean2String(bump, glitter, breeze, stench, scream);
-		
-		return this.getAction(actionTable.get(percept));
+		return this.getAction(this.actionCaculator(bump, glitter, breeze, stench, scream));
 	}
 	
-	private String perceptBoolean2String(boolean bump, boolean glitter, 
-			boolean breeze, boolean stench, boolean scream) {
-		String temp = this.boolean2binary(bump) + this.boolean2binary(glitter) + this.boolean2binary(breeze) + 
-				this.boolean2binary(stench) + this.boolean2binary(scream);
-		return temp;
-	}
-	
-	private String boolean2binary(boolean b) {
-		return b ? "1" : "0";
-	}
-	
+	// Return an action based on the probability of each action
 	private int getAction(double[] probs) {
-
-		Random rand = new Random();
-		double randomNumber = Math.random() + 0.1;
-		
+		// create the range of value for each action(six ranges in total)
+		double[] partitions = new double[] {0,0,0,0,0,0,0};
 		double sum = 0;
 		for(int i = 0; i < probs.length; i++) {
-			if(sum + probs[i] > randomNumber) {
-				return i + 1;
-			}
 			sum += probs[i];
+			partitions[i+1] = sum;
 		}
-
-		return probs.length - 1;
+		
+		// generate a random number and check which range of values it falls in
+		double randomNumber = Math.random();
+		for(int i = 0; i < partitions.length - 1; i++) {
+			if(randomNumber > partitions[i] && randomNumber < partitions[i+1]) {
+				return i+1;
+			}
+		}
+		
+		return probs.length - 1; // return NO_OP if there is no action is selected
 	}
 	
-	private void createActionTable() {
-		// Key: {glitter, stench, scream, bump, breeze}
-		// Value: {^, >, < , grab, shoot, no_op} (probability of each action)
-		this.actionTable.put("00000", new double[]{0.6, 0.2, 0.2, 0.0, 0.0, 0.0});
-		this.actionTable.put("00001", new double[]{0.1, 0.3, 0.3, 0, 0, 0.3});
-		this.actionTable.put("00010", new double[]{0, 0.3, 0.3, 0, 0, 0.4});
-		this.actionTable.put("00011", new double[]{0, 0.3, 0.3, 0, 0, 0.4});
-		this.actionTable.put("00100", new double[]{0.6, 0.2, 0.2, 0, 0, 0});
+	// Add values to each action in an array of actions
+	// (forward, right, left, grab, shoot, no_op)
+	// based on the percept that the agent senses
+	// then normalize the array to get the probabilities for the actions
+	private double[] actionCaculator(boolean bump, boolean glitter, 
+			boolean breeze, boolean stench, boolean scream) {
+		double[] actionArray = new double[]{8,1,1,0,0,0};
+		if(bump == true) {
+			// agent senses bump, so it might go left or right or no action
+			actionArray = this.add(actionArray, new double[] {0,8000,4000,0,0,1000});
+		}
+		if(scream == true) {
+			// agent senses scream, so it might go forward
+			actionArray = this.add(actionArray, new double[] {10,0,0,0,0,0});
+		}
+		if(stench == true) {
+			// agent senses stench, increase the probability that the agent 
+			// will turn left, right, shoot and no action,
+			// suppress the probability that the agent will go forward
+			actionArray = this.add(actionArray, new double[] {0,8000,4000,0,2000,1000});
+		}
+		if(breeze == true) {
+			// agent senses breeze, increase the probability that the agent 
+			// will turn left, rightand no action
+			// suppress the probability that the agent will go forward
+			actionArray = this.add(actionArray, new double[] {0,8000,4000,0,0,1000});
+		}
 		
-		this.actionTable.put("00101", new double[]{0.1, 0.4, 0.5, 0, 0, 0});
-		this.actionTable.put("00110", new double[]{0, 0.5, 0.5, 0, 0, 0});
-		this.actionTable.put("00111", new double[]{0, 0.3, 0.3, 0.0, 0, 0.4});
-		this.actionTable.put("01000", new double[]{0.1, 0.2, 0.3, 0.0, 0.2, 0.2});
-		this.actionTable.put("01001", new double[]{0.1, 0.3, 0.3, 0, 0.2, 0.1});
+		return this.normalize(actionArray);
+	}
+	
+	// add array a to b element wise
+	private double[] add(double[] a, double[] b) {
+		double[] sum = new double[a.length];
+		for(int i = 0; i < a.length; i++) {
+			sum[i] = a[i] + b[i];
+		}
+		return sum;
+	}
+	
+	// divide each elements in the array to their sum
+	private double[] normalize(double[] arr) {
+		double sum = Arrays.stream(arr).sum();
+		for(int i = 0; i < arr.length; i++) {
+			arr[i] = arr[i]/sum;
+		}
 		
-		this.actionTable.put("01010", new double[]{0, 0.5, 0.5, 0.0, 0.0, 0});
-		this.actionTable.put("01011", new double[]{0, 0.5, 0.5, 0, 0, 0});
-		this.actionTable.put("01100", new double[]{0.8, 0.1, 0.1, 0.0, 0.0, 0.0});
-		this.actionTable.put("01101", new double[]{0.1, 0.2, 0.2, 0, 0.1, 0.4});
-		this.actionTable.put("01110", new double[]{0, 0.3, 0.3, 0, 0, 0.4});
-		this.actionTable.put("01111", new double[]{0, 0.3, 0.3, 0, 0, 0.4});
+		return arr;
 	}
 }

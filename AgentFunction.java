@@ -71,10 +71,10 @@ class AgentFunction {
 		scream = tp.getScream();
 
 		// return action to be performed
-		if(glitter == true)
+		if(glitter == true) // always grab the gold when senses glitter
 			return Action.GRAB;
-		int action = simple.percept2action(glitter, stench, scream, bump, breeze); 
-		return action;
+
+		return simple.percept2action(bump, glitter, breeze, stench, scream);
 	}
 	
 	// public method to return the agent's name
